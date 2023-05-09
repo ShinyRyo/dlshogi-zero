@@ -1,5 +1,8 @@
-﻿import tensorflow as tf
-from tensorflow.keras.backend import set_session
+﻿from tensorflow.compat.v1.keras.backend import set_session
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import Session
+import tensorflow as tf
+# from tensorflow.keras.backend import set_session
 import numpy as np
 from cshogi import *
 from dlshogi_zero.features import *
@@ -11,9 +14,9 @@ import time
 import logging
 import os
 
-config = tf.ConfigProto()
+config = ConfigProto()
 config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
+sess = Session(config=config)
 set_session(sess)
 
 # UCBの定数
@@ -157,7 +160,7 @@ class SelfPlayAgentGroup:
     # 局面の評価
     def eval_node(self):
         # predict
-        logits, values = self.model.predict(self.features[0:self.current_policy_value_batch_index].reshape((self.current_policy_value_batch_index, MAX_FEATURES, 9, 9)))
+        logits, values = self.model.predict(self.features[0:self.current_policy_value_batch_index].reshape((self.current_policy_value_batch_index, MAX_FEATURES, 9, 9)),verbose=0)
 
         for i, (logit, value) in enumerate(zip(logits, values)):
             current_node = self.policy_value_node[i]
@@ -192,7 +195,7 @@ class SelfPlayAgentGroup:
 
         # 入力特徴量に履歴局面を設定
         for i, (move, repetition) in enumerate(zip(moves[-1:-MAX_HISTORY:-1], repetitions[-2:-MAX_HISTORY-1:-1])):
-            board.pop(move)
+            board.pop()
             make_position_features(board, repetition, self.features[self.current_policy_value_batch_index], i + 1)
 
         # 局面を戻す
@@ -236,7 +239,7 @@ class SelfPlayAgent:
     def undo_move(self):
         self.repetition_hash[self.board.zobrist_hash()] -= 1
         self.repetitions.pop()
-        self.board.pop(self.moves[-1])
+        self.board.pop()
         self.moves.pop()
 
     # 教師局面をチャンクに追加

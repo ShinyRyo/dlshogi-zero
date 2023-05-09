@@ -1,5 +1,8 @@
-﻿import tensorflow as tf
-from tensorflow.keras.backend import set_session
+﻿from tensorflow.compat.v1.keras.backend import set_session
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import Session
+import tensorflow as tf
+# from tensorflow.keras.backend import set_session
 from tensorflow.keras.models import load_model
 import numpy as np
 from cshogi import *
@@ -8,9 +11,9 @@ from dlshogi_zero.features import *
 from dlshogi_zero.database import *
 import os
 
-config = tf.ConfigProto()
+config = ConfigProto()
 config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
+sess = Session(config=config)
 set_session(sess)
 
 def mini_batch(database, batch_size):
@@ -57,11 +60,15 @@ def compile(model, lr, weight_decay):
     # add weight decay
     for layer in model.layers:
         if isinstance(layer, tf.keras.layers.Conv2D) or isinstance(layer, tf.keras.layers.Dense):
-            layer.add_loss(tf.keras.regularizers.l2(weight_decay)(layer.kernel))
+            layer.add_loss(lambda: tf.keras.regularizers.l2(weight_decay)(layer.kernel))
 
-    model.compile(optimizer=tf.train.MomentumOptimizer(learning_rate=lr, momentum=0.9),
+
+    model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=lr, momentum=0.9),
                   loss={'policy': categorical_crossentropy, 'value': 'mse'},
                   metrics={'policy': categorical_accuracy, 'value': binary_accuracy})
+# optimizer = tf.keras.optimizers.SGD(learning_rate=0.01, momentum=0.9)
+# loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+# model.compile(optimizer=optimizer, loss=loss_fn, metrics=['accuracy'])
 
 def train(training_database, test_database, model, batchsize, steps, test_steps, window_size):
     model.fit_generator(datagen(training_database, window_size, batchsize), steps,
