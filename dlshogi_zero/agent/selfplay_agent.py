@@ -83,6 +83,7 @@ def update_result(current_node, next_index, result):
     current_node.move_count += 1
     current_node.child_win[next_index] += result
     current_node.child_move_count[next_index] += 1
+    # print(result)
 
 class SelfPlayAgentGroup:
     def __init__(self, model, training_database, policy_value_batch_maxsize, checkpoint, playouts):
@@ -108,6 +109,7 @@ class SelfPlayAgentGroup:
         num_playouts = playouts
 
     def selfplay(self):
+        print("start self game")
         global games
         games = 0
 
@@ -121,6 +123,7 @@ class SelfPlayAgentGroup:
         trajectories_batch = [[] for _ in range(self.policy_value_batch_maxsize)]
 
         # すべてのエージェントが生成したゲーム数が上限ゲーム数以上になったら終了
+        print("1試合開始")
         while games < limit_games and not stopflg:
             self.current_policy_value_batch_index = 0
 
@@ -141,6 +144,7 @@ class SelfPlayAgentGroup:
                         # 葉ノード
                         child_node = current_node.child_nodes[next_index]
                         result = -child_node.value_win
+                    # print(current_node, next_index)
                     update_result(current_node, next_index, result)
                     result = -result
 

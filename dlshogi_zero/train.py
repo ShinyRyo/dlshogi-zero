@@ -42,8 +42,10 @@ def mini_batch(database, batch_size):
     return (features.reshape((batch_size, MAX_FEATURES, 9, 9)), { 'policy': action_probabilities, 'value': game_outcomes })
 
 def datagen(database, window_size, batchsize):
+    print("start datage")
     database.prepare_training(window_size)
     while True:
+        print("start miibatch")
         yield mini_batch(database, batchsize)
 
 def categorical_crossentropy(y_true, y_pred):
@@ -71,6 +73,7 @@ def compile(model, lr, weight_decay):
 # model.compile(optimizer=optimizer, loss=loss_fn, metrics=['accuracy'])
 
 def train(training_database, test_database, model, batchsize, steps, test_steps, window_size):
+    print("fitting start")
     model.fit_generator(datagen(training_database, window_size, batchsize), steps,
                         validation_data=datagen(test_database, window_size, batchsize), validation_steps=test_steps)
 
@@ -90,17 +93,19 @@ if __name__ == '__main__':
     parser.add_argument('--weight_decay', type=int, default=1e-4)
 
     args = parser.parse_args()
-
+    print("select model")
     if args.resume is not None:
         model = load_model(args.resume)
     else:
         model = ResNet()
+        print("make 0 model")
 
     compile(model, args.lr, args.weight_decay)
+    print("modelcompile")
 
     training_database = TrainingDataBase(args.training_database)
     test_database = TrainingDataBase(args.test_database)
-
+    
     train(training_database,
           test_database,
           model,
@@ -111,3 +116,4 @@ if __name__ == '__main__':
           )
 
     model.save(args.model)
+    print("model.save")

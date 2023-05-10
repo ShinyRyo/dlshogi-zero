@@ -28,6 +28,7 @@ def run(training_database_path, test_database_path, model_path, agents, checkpoi
 
     cycles = 0
     while True:
+        print("start 自己対局")
         # 自己対局開始
         ret = agent_group.selfplay()
 
