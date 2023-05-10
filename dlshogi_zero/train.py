@@ -45,7 +45,7 @@ def datagen(database, window_size, batchsize):
     print("start datage")
     database.prepare_training(window_size)
     while True:
-        print("start miibatch")
+        # print("start miibatch")
         yield mini_batch(database, batchsize)
 
 def categorical_crossentropy(y_true, y_pred):
@@ -75,7 +75,7 @@ def compile(model, lr, weight_decay):
 def train(training_database, test_database, model, batchsize, steps, test_steps, window_size):
     print("fitting start")
     model.fit_generator(datagen(training_database, window_size, batchsize), steps,
-                        validation_data=datagen(test_database, window_size, batchsize), validation_steps=test_steps)
+                        validation_data=datagen(test_database, window_size, batchsize), validation_steps=test_steps, verbose=0)
 
 if __name__ == '__main__':
     import argparse
