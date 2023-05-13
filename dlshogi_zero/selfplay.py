@@ -46,7 +46,7 @@ def run(training_database_path, test_database_path, model_path, agents, checkpoi
 
         # モデル保存
         model_ver += 1
-        os.makedirs("checkpoints")#('{}{:03}{}'.format(m.group(1), model_ver, m.group(3)))
+        os.makedirs("checkpoints", exist_ok=True)#('{}{:03}{}'.format(m.group(1), model_ver, m.group(3)))
         model.save(f'checkpoints/{m.group(1)}{model_ver:03}{m.group(3)}')
 
         # モデルバージョン設定
